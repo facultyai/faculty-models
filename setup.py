@@ -27,7 +27,7 @@ setup(
     use_scm_version={"version_scheme": "post-release"},
     setup_requires=["setuptools_scm"],
     install_requires=[
-        "faculty",
+        "faculty>=0.25.4",
         "mlflow==1.2.0",
     ],
 )
