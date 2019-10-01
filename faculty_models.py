@@ -57,6 +57,7 @@ def _get_model_version(project_id, model_id, version_number=None):
 
     try:
         [version] = matching
+        return version
     except ValueError:
         if len(matching) == 0:
             tpl = "No version of model {} with version number {} found"
