@@ -82,5 +82,5 @@ either function:
     model = faculty_models.load_mlmodel(
         project_id="998328c3-23df-4225-a3ee-0a53d1409fbd",
         model_id="c998fca9-e093-47ea-9896-8f75db695b91",
-        path="sub/path",
+        path="sub/path"
     )
