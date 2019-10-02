@@ -15,6 +15,8 @@
 
 import uuid
 
+import pytest
+
 import faculty_models
 
 
@@ -22,8 +24,25 @@ PROJECT_ID = uuid.uuid4()
 MODEL_ID = uuid.uuid4()
 
 
-def test_download(mocker):
-    model_versions = [mocker.Mock(version_number=i) for i in range(5)]
+@pytest.mark.parametrize(
+    "version, version_mock_index",
+    [(None, -1), (3, 3)],
+    ids=["version=None", "version=3"],
+)
+@pytest.mark.parametrize("artifact_path_suffix", ["", "/"])
+@pytest.mark.parametrize("path", [None, "sub/path", "/sub/path"])
+def test_download(
+    mocker, version, version_mock_index, artifact_path_suffix, path
+):
+    model_versions = [
+        mocker.Mock(
+            version_number=i,
+            artifact_path="faculty-datasets:model/{}/artifacts{}".format(
+                i, artifact_path_suffix
+            ),
+        )
+        for i in range(5)
+    ]
 
     mock_client = mocker.Mock()
     mock_client.list_versions.return_value = model_versions
@@ -33,11 +52,20 @@ def test_download(mocker):
         "mlflow.tracking.artifact_utils._download_artifact_from_uri"
     )
 
-    returned_path = faculty_models.download(PROJECT_ID, MODEL_ID)
+    returned_path = faculty_models.download(
+        PROJECT_ID, MODEL_ID, version=version, path=path
+    )
 
     assert returned_path == mlflow_download_mock.return_value
 
     mock_client.list_versions.assert_called_once_with(PROJECT_ID, MODEL_ID)
-    mlflow_download_mock.assert_called_once_with(
-        model_versions[-1].artifact_path
-    )
+
+    if path is None:
+        expected_uri = model_versions[version_mock_index].artifact_path
+    else:
+        expected_uri = (
+            model_versions[version_mock_index].artifact_path.rstrip("/")
+            + "/"
+            + path.lstrip("/")
+        )
+    mlflow_download_mock.assert_called_once_with(expected_uri)
