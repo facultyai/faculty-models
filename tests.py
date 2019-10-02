@@ -25,15 +25,32 @@ MODEL_ID = uuid.uuid4()
 
 
 @pytest.mark.parametrize(
+    "faculty_models_function, mlflow_function_name",
+    [
+        (
+            faculty_models.download,
+            "mlflow.tracking.artifact_utils._download_artifact_from_uri",
+        ),
+        (faculty_models.load_mlmodel, "mlflow.pyfunc.load_model"),
+    ],
+)
+@pytest.mark.parametrize(
     "version, version_mock_index",
     [(None, -1), (3, 3)],
     ids=["version=None", "version=3"],
 )
 @pytest.mark.parametrize("artifact_path_suffix", ["", "/"])
 @pytest.mark.parametrize("path", [None, "sub/path", "/sub/path"])
-def test_download(
-    mocker, version, version_mock_index, artifact_path_suffix, path
+def test_function(
+    mocker,
+    faculty_models_function,
+    mlflow_function_name,
+    version,
+    version_mock_index,
+    artifact_path_suffix,
+    path,
 ):
+
     model_versions = [
         mocker.Mock(
             version_number=i,
@@ -48,15 +65,13 @@ def test_download(
     mock_client.list_versions.return_value = model_versions
     mocker.patch("faculty.client", return_value=mock_client)
 
-    mlflow_download_mock = mocker.patch(
-        "mlflow.tracking.artifact_utils._download_artifact_from_uri"
-    )
+    mlflow_function_mock = mocker.patch(mlflow_function_name)
 
-    returned_path = faculty_models.download(
+    return_value = faculty_models_function(
         PROJECT_ID, MODEL_ID, version=version, path=path
     )
 
-    assert returned_path == mlflow_download_mock.return_value
+    assert return_value == mlflow_function_mock.return_value
 
     mock_client.list_versions.assert_called_once_with(PROJECT_ID, MODEL_ID)
 
@@ -68,4 +83,4 @@ def test_download(
             + "/"
             + path.lstrip("/")
         )
-    mlflow_download_mock.assert_called_once_with(expected_uri)
+    mlflow_function_mock.assert_called_once_with(expected_uri)
