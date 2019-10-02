@@ -20,11 +20,7 @@ import pytest
 import faculty_models
 
 
-PROJECT_ID = uuid.uuid4()
-MODEL_ID = uuid.uuid4()
-
-
-@pytest.mark.parametrize(
+PARAMETRIZE_FUNCTION = pytest.mark.parametrize(
     "faculty_models_function, mlflow_function_name",
     [
         (
@@ -33,7 +29,15 @@ MODEL_ID = uuid.uuid4()
         ),
         (faculty_models.load_mlmodel, "mlflow.pyfunc.load_model"),
     ],
+    ids=["download", "load_mlmodel"],
 )
+
+
+PROJECT_ID = uuid.uuid4()
+MODEL_ID = uuid.uuid4()
+
+
+@PARAMETRIZE_FUNCTION
 @pytest.mark.parametrize(
     "version, version_mock_index",
     [(None, -1), (3, 3)],
@@ -84,3 +88,47 @@ def test_function(
             + path.lstrip("/")
         )
     mlflow_function_mock.assert_called_once_with(expected_uri)
+
+
+@PARAMETRIZE_FUNCTION
+def test_function_missing_version(
+    mocker, faculty_models_function, mlflow_function_name
+):
+
+    model_versions = [mocker.Mock(version_number=i) for i in range(5)]
+
+    mock_client = mocker.Mock()
+    mock_client.list_versions.return_value = model_versions
+    mocker.patch("faculty.client", return_value=mock_client)
+
+    mlflow_function_mock = mocker.patch(mlflow_function_name)
+
+    with pytest.raises(
+        ValueError, match="No version .* with version number 6 found"
+    ):
+        faculty_models_function(PROJECT_ID, MODEL_ID, version=6)
+
+    mock_client.list_versions.assert_called_once_with(PROJECT_ID, MODEL_ID)
+    mlflow_function_mock.assert_not_called()
+
+
+@PARAMETRIZE_FUNCTION
+def test_function_duplicate_version(
+    mocker, faculty_models_function, mlflow_function_name
+):
+
+    model_versions = [mocker.Mock(version_number=i) for i in [0, 1, 2, 2, 3]]
+
+    mock_client = mocker.Mock()
+    mock_client.list_versions.return_value = model_versions
+    mocker.patch("faculty.client", return_value=mock_client)
+
+    mlflow_function_mock = mocker.patch(mlflow_function_name)
+
+    with pytest.raises(
+        ValueError, match="Multiple versions .* with version number 2 found"
+    ):
+        faculty_models_function(PROJECT_ID, MODEL_ID, version=2)
+
+    mock_client.list_versions.assert_called_once_with(PROJECT_ID, MODEL_ID)
+    mlflow_function_mock.assert_not_called()
