@@ -67,6 +67,6 @@ def _get_model_version(project_id, model_id, version=None):
 def _append_subpath_to_uri(uri, subpath):
     parsed_uri = urllib.parse.urlparse(uri)
     modified_uri = parsed_uri._replace(
-        path=posixpath.join(parsed_uri.path, subpath)
+        path=posixpath.join(parsed_uri.path, subpath.lstrip("/"))
     )
     return urllib.parse.urlunparse(modified_uri)
