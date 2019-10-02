@@ -22,6 +22,25 @@ import mlflow.tracking.artifact_utils
 
 
 def download(project_id, model_id, path=None, version=None):
+    """Download the contents of a model to the local filesystem.
+
+    Parameters
+    ----------
+    project_id : uuid.UUID or str
+        The UUID of the project to retrieve a model from.
+    model_id : uuid.UUID or str
+        The UUID of the model to retrieve.
+    path : str, optional
+        If given, retrieve this subpath of the model's contents.
+    version : int, optional
+        The version number of the model to retrieve. If not given, the latest
+        version will be retrieved.
+
+    Returns
+    -------
+    str
+        The path that the model has been downloaded to.
+    """
     artifact_path = _determine_artifact_path(
         project_id, model_id, path, version
     )
@@ -31,6 +50,26 @@ def download(project_id, model_id, path=None, version=None):
 
 
 def load_mlmodel(project_id, model_id, path=None, version=None):
+    """Load an MLmodel-serlialised model into memory.
+
+    Parameters
+    ----------
+    project_id : uuid.UUID or str
+        The UUID of the project to retrieve a model from.
+    model_id : uuid.UUID or str
+        The UUID of the model to retrieve.
+    path : str, optional
+        If given, retrieve this subpath of the model's contents.
+    version : int, optional
+        The version number of the model to retrieve. If not given, the latest
+        version will be retrieved.
+
+    Returns
+    -------
+    object
+        The deserialised MLmodel, for example a scikit-learn classifier or
+        TensorFlow model.
+    """
     artifact_path = _determine_artifact_path(
         project_id, model_id, path, version
     )
