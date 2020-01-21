@@ -34,5 +34,9 @@ setup(
     py_modules=["faculty_models"],
     use_scm_version={"version_scheme": "post-release"},
     setup_requires=["setuptools_scm"],
-    install_requires=["faculty>=0.25.4", "mlflow==1.2.0"],
+    install_requires=[
+        "faculty>=0.25.4",
+        "mlflow==1.2.0",
+        "mlflow-faculty>=0.4.3",
+    ],
 )
