@@ -36,7 +36,7 @@ setup(
     setup_requires=["setuptools_scm"],
     install_requires=[
         "faculty>=0.25.4",
-        "mlflow==1.2.0",
+        "mlflow>=1.2.0,<1.8.0",
         "mlflow-faculty>=0.4.3",
     ],
 )

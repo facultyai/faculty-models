@@ -5,13 +5,13 @@ dist: xenial
 matrix:
   include:
     - python: 2.7
-      env: TOXENV=py27
+      env: TOXENV=py27-mlflow12,py27-mlflow13,py27-mlflow14,py27-mlflow15,py27-mlflow16,py27-mlflow17
     - python: 3.6
-      env: TOXENV=py36
+      env: TOXENV=py36-mlflow12,py36-mlflow13,py36-mlflow14,py36-mlflow15,py36-mlflow16,py36-mlflow17
     - python: 3.7
-      env: TOXENV=py37
+      env: TOXENV=py37-mlflow12,py37-mlflow13,py37-mlflow14,py37-mlflow15,py37-mlflow16,py37-mlflow17
     - python: 3.8
-      env: TOXENV=py38
+      env: TOXENV=py38-mlflow12,py38-mlflow13,py38-mlflow14,py38-mlflow15,py38-mlflow16,py38-mlflow17
     - name: Check black formatting
       python: 3.6
       env: TOXENV=black
