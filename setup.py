@@ -37,6 +37,6 @@ setup(
     install_requires=[
         "faculty>=0.25.4",
         "mlflow~=1.7.0",
-        "mlflow-faculty>=0.4.3",
+        "mlflow-faculty>=0.5.0",
     ],
 )
